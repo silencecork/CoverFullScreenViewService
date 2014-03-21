@@ -3,6 +3,7 @@ package com.example.servicetakeover;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.IBinder;
@@ -12,6 +13,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
 import android.widget.Toast;
 
 public class TakeOverService extends Service {
@@ -103,8 +105,9 @@ public class TakeOverService extends Service {
 		try {
 			mTakeOverView = LayoutInflater.from(this).inflate(R.layout.takeover, null);
 			mTakeOverView.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00FF0000")));
-			params.height = WindowManager.LayoutParams.MATCH_PARENT;
-			params.width = WindowManager.LayoutParams.MATCH_PARENT;
+			
+			params.height = getResources().getDisplayMetrics().heightPixels;
+			params.width = getResources().getDisplayMetrics().widthPixels;
 			params.type = WindowManager.LayoutParams.TYPE_TOAST;
 			params.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 					| WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
@@ -129,7 +132,7 @@ public class TakeOverService extends Service {
 			public void run() {
 				while (true) {
 					try {
-						Thread.sleep(10000);
+						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -137,6 +140,22 @@ public class TakeOverService extends Service {
 			}
 		};
 		mThread.start();
+	}
+
+	
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		
+		if (mTakeOverView != null) {
+			WindowManager.LayoutParams params = (LayoutParams) mTakeOverView.getLayoutParams();
+			params.height = getResources().getDisplayMetrics().heightPixels;
+			params.width = getResources().getDisplayMetrics().widthPixels; 
+			
+			WindowManager mWM = (WindowManager)getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+			mWM.updateViewLayout(mTakeOverView, params);
+		}
 	}
 
 	@Override
